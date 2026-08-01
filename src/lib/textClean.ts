@@ -1,4 +1,4 @@
-import type { ExtractedPage, PageLine } from "./types";
+import type { BookParagraph, ExtractedPage, PageLine } from "./types";
 
 const PAGE_NUMBER_RE = /^[ivxlcdm]+$|^\d{1,4}$|^[-–—]?\s*\d{1,4}\s*[-–—]?$/i;
 const INDENT_THRESHOLD = 8;
@@ -113,16 +113,21 @@ function mostCommon(values: number[]): number {
   return best;
 }
 
-/** Reconstructs paragraphs using left-margin indentation and vertical gaps as paragraph-break cues. */
-function buildParagraphs(pages: ExtractedPage[]): string[] {
+/**
+ * Reconstructs paragraphs using left-margin indentation and vertical gaps as paragraph-break
+ * cues, tagging each paragraph with the source PDF page its first line came from — this is what
+ * lets the reader show a sense of the original page boundaries.
+ */
+function buildParagraphs(pages: ExtractedPage[]): BookParagraph[] {
   const mergedByPage = pages.map((p) => dehyphenate(p.lines));
   const allLines = mergedByPage.flat();
   if (allLines.length === 0) return [];
 
   const bodyX = mostCommon(allLines.map((l) => Math.round(l.x / 2) * 2));
 
-  const paragraphs: string[] = [];
+  const paragraphs: BookParagraph[] = [];
   let current = "";
+  let currentPage = pages[0]?.pageNum ?? 1;
   let prevYEnd: number | null = null;
   let typicalGap = 0;
 
@@ -149,27 +154,29 @@ function buildParagraphs(pages: ExtractedPage[]): string[] {
       const startsNewParagraph = current === "" || isIndented || isBigGap;
 
       if (startsNewParagraph && current) {
-        paragraphs.push(current);
+        paragraphs.push({ text: current, page: currentPage });
         current = text;
+        currentPage = page.pageNum;
       } else if (!current) {
         current = text;
+        currentPage = page.pageNum;
       } else {
         current += " " + text;
       }
     }
   });
 
-  if (current) paragraphs.push(current);
+  if (current) paragraphs.push({ text: current, page: currentPage });
 
-  return paragraphs.filter((p) => p.length > 1);
+  return paragraphs.filter((p) => p.text.length > 1);
 }
 
-export function cleanExtractedPages(pages: ExtractedPage[]): string[] {
+export function cleanExtractedPages(pages: ExtractedPage[]): BookParagraph[] {
   const withoutBoilerplate = stripRunningBoilerplate(pages);
   const withoutPageNumbers = stripPageNumbers(withoutBoilerplate);
   return buildParagraphs(withoutPageNumbers);
 }
 
-export function countWords(paragraphs: string[]): number {
-  return paragraphs.reduce((sum, p) => sum + p.split(/\s+/).filter(Boolean).length, 0);
+export function countWords(paragraphs: BookParagraph[]): number {
+  return paragraphs.reduce((sum, p) => sum + p.text.split(/\s+/).filter(Boolean).length, 0);
 }

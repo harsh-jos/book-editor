@@ -21,6 +21,12 @@ export interface ExtractedPage {
   lines: PageLine[];
 }
 
+export interface BookParagraph {
+  text: string;
+  /** Source PDF page this paragraph started on — used to show page boundaries in the reader. */
+  page: number;
+}
+
 export interface Book {
   id: string;
   title: string;
@@ -29,7 +35,7 @@ export interface Book {
   pageCount: number;
   wordCount: number;
   cover: string;
-  paragraphs: string[];
+  paragraphs: BookParagraph[];
   progress: number;
 }
 

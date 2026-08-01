@@ -12,8 +12,33 @@ import {
   loadReaderSettings,
   saveReaderSettings,
 } from "@/lib/readerSettings";
-import type { Book, ReaderSettings } from "@/lib/types";
+import type { Book, BookParagraph, ReaderSettings } from "@/lib/types";
 import ReaderSettingsPanel from "@/components/ReaderSettingsPanel";
+
+interface PageGroup {
+  page: number;
+  paragraphs: BookParagraph[];
+}
+
+/** Tolerates books saved before per-paragraph page tracking existed (plain string paragraphs). */
+function normalizeParagraph(p: unknown): BookParagraph {
+  if (typeof p === "string") return { text: p, page: 1 };
+  const obj = p as Partial<BookParagraph>;
+  return { text: typeof obj.text === "string" ? obj.text : "", page: obj.page ?? 1 };
+}
+
+function groupByPage(paragraphs: BookParagraph[]): PageGroup[] {
+  const groups: PageGroup[] = [];
+  for (const paragraph of paragraphs) {
+    const last = groups[groups.length - 1];
+    if (last && last.page === paragraph.page) {
+      last.paragraphs.push(paragraph);
+    } else {
+      groups.push({ page: paragraph.page, paragraphs: [paragraph] });
+    }
+  }
+  return groups;
+}
 
 export default function ReaderPage() {
   const params = useParams<{ id: string }>();
@@ -86,6 +111,7 @@ export default function ReaderPage() {
   const fontClass = FONT_OPTIONS.find((f) => f.value === settings.font)?.className ?? "font-serif";
   const paperClass = PAPER_OPTIONS.find((p) => p.value === settings.paper)?.className ?? "bg-white";
   const measurePx = WIDTH_OPTIONS.find((w) => w.value === settings.width)?.maxWidth ?? 860;
+  const pageGroups = groupByPage(book.paragraphs.map(normalizeParagraph));
 
   return (
     <div className={`min-h-screen ${paperClass} transition-colors duration-300`}>
@@ -117,19 +143,29 @@ export default function ReaderPage() {
         className="mx-auto px-6 pb-32 pt-10 transition-[max-width] duration-300 sm:pt-16 sm:px-10"
         style={{ maxWidth: `${measurePx}px` }}
       >
-        <h1 className="mb-10 font-serif text-3xl leading-tight text-ink sm:text-4xl">
+        <h1 className="mb-12 font-serif text-3xl leading-tight text-ink sm:text-4xl">
           {book.title}
         </h1>
-        <div
-          className={fontClass}
-          style={{ fontSize: `${settings.fontSize}px`, lineHeight: settings.lineHeight }}
-        >
-          {book.paragraphs.map((paragraph, i) => (
-            <p key={i} className="mb-[1.1em] text-ink">
-              {paragraph}
-            </p>
-          ))}
-        </div>
+        {pageGroups.map((group, groupIndex) => (
+          <section
+            key={groupIndex}
+            className="relative mb-14 rounded-[1.5rem] border border-line/80 px-6 py-9 shadow-[0_1px_1px_rgba(34,31,28,0.03)] sm:px-12 sm:py-12"
+          >
+            <div
+              className={fontClass}
+              style={{ fontSize: `${settings.fontSize}px`, lineHeight: settings.lineHeight }}
+            >
+              {group.paragraphs.map((paragraph, i) => (
+                <p key={i} className="mb-[1.1em] text-ink last:mb-0">
+                  {paragraph.text}
+                </p>
+              ))}
+            </div>
+            <span className="absolute bottom-3 right-5 text-xs tabular-nums text-ink-faint">
+              {group.page}
+            </span>
+          </section>
+        ))}
       </article>
 
       <ReaderSettingsPanel
