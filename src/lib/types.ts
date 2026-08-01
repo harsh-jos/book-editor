@@ -25,6 +25,17 @@ export interface BookParagraph {
   text: string;
   /** Source PDF page this paragraph started on — used to show page boundaries in the reader. */
   page: number;
+  /** PDF-space y of the paragraph's first line (origin bottom-left) — used to interleave figures. */
+  y: number;
+}
+
+export interface BookImage {
+  page: number;
+  /** PDF-space y of the image's top edge (origin bottom-left) — used to interleave with paragraphs. */
+  y: number;
+  dataUrl: string;
+  width: number;
+  height: number;
 }
 
 export interface Book {
@@ -36,6 +47,7 @@ export interface Book {
   wordCount: number;
   cover: string;
   paragraphs: BookParagraph[];
+  images: BookImage[];
   progress: number;
 }
 
@@ -48,4 +60,12 @@ export interface BookSummary {
   wordCount: number;
   cover: string;
   progress: number;
+}
+
+export interface ProcessPdfResponse {
+  pageCount: number;
+  wordCount: number;
+  cover: string;
+  paragraphs: BookParagraph[];
+  images: BookImage[];
 }
