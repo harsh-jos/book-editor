@@ -5,41 +5,10 @@ import UploadTile from "@/components/UploadTile";
 import BookCard from "@/components/BookCard";
 import ProcessingToast, { type ProcessingState } from "@/components/ProcessingToast";
 import { getAllBookSummaries, saveBook, deleteBook } from "@/lib/db";
+import { extractPdf } from "@/lib/pdf";
+import { cleanExtractedPages, countWords } from "@/lib/textClean";
 import { deriveTitleFromFilename } from "@/lib/deriveTitle";
-import type { Book, BookSummary, ProcessPdfResponse } from "@/lib/types";
-
-function uploadAndProcess(
-  file: File,
-  onUploadProgress: (loaded: number, total: number) => void
-): Promise<ProcessPdfResponse> {
-  return new Promise((resolve, reject) => {
-    const xhr = new XMLHttpRequest();
-    const formData = new FormData();
-    formData.append("file", file);
-
-    xhr.upload.addEventListener("progress", (e) => {
-      if (e.lengthComputable) onUploadProgress(e.loaded, e.total);
-    });
-
-    xhr.addEventListener("load", () => {
-      try {
-        const body = JSON.parse(xhr.responseText);
-        if (xhr.status >= 200 && xhr.status < 300) {
-          resolve(body as ProcessPdfResponse);
-        } else {
-          reject(new Error(body.error ?? "Processing failed."));
-        }
-      } catch {
-        reject(new Error("Processing failed."));
-      }
-    });
-
-    xhr.addEventListener("error", () => reject(new Error("Upload failed.")));
-
-    xhr.open("POST", "/api/process");
-    xhr.send(formData);
-  });
-}
+import type { Book, BookSummary } from "@/lib/types";
 
 export default function LibraryPage() {
   const [books, setBooks] = useState<BookSummary[] | null>(null);
@@ -70,33 +39,35 @@ export default function LibraryPage() {
 
     setProcessing({
       fileName: file.name,
-      stage: "uploading",
+      stage: "reading",
       current: 0,
       total: 0,
       queued: queueRef.current.length,
     });
 
     try {
-      const result = await uploadAndProcess(file, (loaded, total) => {
-        setProcessing((p) => (p ? { ...p, stage: "uploading", current: loaded, total } : p));
+      const { pages, pageCount, cover } = await extractPdf(file, (current, total) => {
+        setProcessing((p) => (p ? { ...p, stage: "reading", current, total } : p));
       });
 
-      setProcessing((p) => (p ? { ...p, stage: "processing" } : p));
+      setProcessing((p) => (p ? { ...p, stage: "typesetting" } : p));
+      const paragraphs = cleanExtractedPages(pages);
+      const wordCount = countWords(paragraphs);
+
+      setProcessing((p) => (p ? { ...p, stage: "cover" } : p));
 
       const book: Book = {
         id: crypto.randomUUID(),
         title: deriveTitleFromFilename(file.name),
         author: "",
         createdAt: Date.now(),
-        pageCount: result.pageCount,
-        wordCount: result.wordCount,
-        cover: result.cover,
-        paragraphs: result.paragraphs,
-        images: result.images,
+        pageCount,
+        wordCount,
+        cover,
+        paragraphs,
         progress: 0,
       };
 
-      setProcessing((p) => (p ? { ...p, stage: "done" } : p));
       await saveBook(book);
       setBooks((prev) => {
         const summary: BookSummary = {

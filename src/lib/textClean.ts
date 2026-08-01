@@ -128,7 +128,6 @@ function buildParagraphs(pages: ExtractedPage[]): BookParagraph[] {
   const paragraphs: BookParagraph[] = [];
   let current = "";
   let currentPage = pages[0]?.pageNum ?? 1;
-  let currentY = 0;
   let prevYEnd: number | null = null;
   let typicalGap = 0;
 
@@ -155,21 +154,19 @@ function buildParagraphs(pages: ExtractedPage[]): BookParagraph[] {
       const startsNewParagraph = current === "" || isIndented || isBigGap;
 
       if (startsNewParagraph && current) {
-        paragraphs.push({ text: current, page: currentPage, y: currentY });
+        paragraphs.push({ text: current, page: currentPage });
         current = text;
         currentPage = page.pageNum;
-        currentY = line.y;
       } else if (!current) {
         current = text;
         currentPage = page.pageNum;
-        currentY = line.y;
       } else {
         current += " " + text;
       }
     }
   });
 
-  if (current) paragraphs.push({ text: current, page: currentPage, y: currentY });
+  if (current) paragraphs.push({ text: current, page: currentPage });
 
   return paragraphs.filter((p) => p.text.length > 1);
 }

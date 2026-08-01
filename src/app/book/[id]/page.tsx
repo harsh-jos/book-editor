@@ -12,61 +12,32 @@ import {
   loadReaderSettings,
   saveReaderSettings,
 } from "@/lib/readerSettings";
-import type { Book, ReaderSettings } from "@/lib/types";
+import type { Book, BookParagraph, ReaderSettings } from "@/lib/types";
 import ReaderSettingsPanel from "@/components/ReaderSettingsPanel";
-
-type PageItem =
-  | { kind: "paragraph"; text: string; y: number }
-  | { kind: "image"; dataUrl: string; width: number; height: number; y: number };
 
 interface PageGroup {
   page: number;
-  items: PageItem[];
+  paragraphs: BookParagraph[];
 }
 
-/** Tolerates books saved before per-paragraph page/position tracking existed (plain string paragraphs). */
-function normalizeParagraph(p: unknown): { text: string; page: number; y: number } {
-  if (typeof p === "string") return { text: p, page: 1, y: 0 };
-  const obj = p as { text?: unknown; page?: unknown; y?: unknown };
-  return {
-    text: typeof obj.text === "string" ? obj.text : "",
-    page: typeof obj.page === "number" ? obj.page : 1,
-    y: typeof obj.y === "number" ? obj.y : 0,
-  };
+/** Tolerates books saved before per-paragraph page tracking existed (plain string paragraphs). */
+function normalizeParagraph(p: unknown): BookParagraph {
+  if (typeof p === "string") return { text: p, page: 1 };
+  const obj = p as Partial<BookParagraph>;
+  return { text: typeof obj.text === "string" ? obj.text : "", page: obj.page ?? 1 };
 }
 
-/** Groups paragraphs and figures by source PDF page, ordered top-to-bottom within each page. */
-function buildPageGroups(book: Book): PageGroup[] {
-  const items: (PageItem & { page: number })[] = [
-    ...book.paragraphs.map(normalizeParagraph).map(
-      (p): PageItem & { page: number } => ({ kind: "paragraph", text: p.text, y: p.y, page: p.page })
-    ),
-    ...(book.images ?? []).map(
-      (img): PageItem & { page: number } => ({
-        kind: "image",
-        dataUrl: img.dataUrl,
-        width: img.width,
-        height: img.height,
-        y: img.y,
-        page: img.page,
-      })
-    ),
-  ];
-
-  const byPage = new Map<number, (PageItem & { page: number })[]>();
-  for (const item of items) {
-    const list = byPage.get(item.page);
-    if (list) list.push(item);
-    else byPage.set(item.page, [item]);
+function groupByPage(paragraphs: BookParagraph[]): PageGroup[] {
+  const groups: PageGroup[] = [];
+  for (const paragraph of paragraphs) {
+    const last = groups[groups.length - 1];
+    if (last && last.page === paragraph.page) {
+      last.paragraphs.push(paragraph);
+    } else {
+      groups.push({ page: paragraph.page, paragraphs: [paragraph] });
+    }
   }
-
-  return [...byPage.keys()]
-    .sort((a, b) => a - b)
-    .map((page) => ({
-      page,
-      // PDF y-space has its origin at the bottom, so a higher y is higher up the page.
-      items: [...byPage.get(page)!].sort((a, b) => b.y - a.y),
-    }));
+  return groups;
 }
 
 export default function ReaderPage() {
@@ -140,7 +111,7 @@ export default function ReaderPage() {
   const fontClass = FONT_OPTIONS.find((f) => f.value === settings.font)?.className ?? "font-serif";
   const paperClass = PAPER_OPTIONS.find((p) => p.value === settings.paper)?.className ?? "bg-white";
   const measurePx = WIDTH_OPTIONS.find((w) => w.value === settings.width)?.maxWidth ?? 860;
-  const pageGroups = buildPageGroups(book);
+  const pageGroups = groupByPage(book.paragraphs.map(normalizeParagraph));
 
   return (
     <div className={`min-h-screen ${paperClass} transition-colors duration-300`}>
@@ -184,23 +155,11 @@ export default function ReaderPage() {
               className={fontClass}
               style={{ fontSize: `${settings.fontSize}px`, lineHeight: settings.lineHeight }}
             >
-              {group.items.map((item, i) =>
-                item.kind === "image" ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    key={i}
-                    src={item.dataUrl}
-                    alt=""
-                    width={item.width}
-                    height={item.height}
-                    className="mx-auto mb-[1.1em] max-w-full rounded-lg shadow-[0_2px_10px_rgba(34,31,28,0.12)] last:mb-0"
-                  />
-                ) : (
-                  <p key={i} className="mb-[1.1em] text-ink last:mb-0">
-                    {item.text}
-                  </p>
-                )
-              )}
+              {group.paragraphs.map((paragraph, i) => (
+                <p key={i} className="mb-[1.1em] text-ink last:mb-0">
+                  {paragraph.text}
+                </p>
+              ))}
             </div>
             <span className="absolute bottom-3 right-5 text-xs tabular-nums text-ink-faint">
               {group.page}
