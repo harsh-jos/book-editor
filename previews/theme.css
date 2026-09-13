@@ -1,0 +1,206 @@
+/* White-paper theme. The :root tokens are the future user controls
+   (font, size, spacing, margins, accent). Everything else derives from them. */
+:root {
+  --paper: #ffffff;
+  --ink: #111111;
+  --ink-soft: #333333;
+  --muted: #616161;
+  --accent: #0284c7;          /* sky blue, used sparingly */
+  --hairline: #e3e3e3;
+  --backdrop: #ededed;
+
+  --font-body: "Helvetica Neue", Helvetica, Inter, Arial, sans-serif;
+  --body-size: 10.5pt;
+  --leading: 1.3;
+  --word-space: -0.015em;
+  --measure: 68ch;
+  --sheet-pad: 72px;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--backdrop);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: var(--body-size);
+  line-height: var(--leading);
+  word-spacing: var(--word-space);
+  -webkit-font-smoothing: antialiased;
+}
+
+.paper {
+  background: var(--paper);
+  max-width: calc(var(--measure) + var(--sheet-pad) * 2);
+  margin: 40px auto;
+  padding: 64px var(--sheet-pad) 72px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12);
+}
+
+/* Running header: repeats on every printed page, flows once on screen. */
+.running-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 2em;
+  font-size: 8.5pt;
+  background: #fff;
+  border-bottom: 1px solid var(--hairline);
+  padding-bottom: 8px;
+  margin-bottom: 26px;
+}
+.rh-title { color: var(--ink-soft); font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.rh-meta { color: var(--muted); white-space: nowrap; }
+
+/* Title block: the only place allowed a strong gesture (one black rule). */
+.kicker {
+  color: var(--accent);
+  font-size: 9pt;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  margin: 0 0 12px;
+}
+
+h1 {
+  font-size: 27pt;
+  line-height: 1.12;
+  letter-spacing: -0.015em;
+  font-weight: 700;
+  margin: 0 0 10px;
+}
+
+.dek {
+  font-size: 12.5pt;
+  line-height: 1.5;
+  color: var(--ink-soft);
+  margin: 0 0 14px;
+}
+
+.meta { font-size: 9pt; color: var(--muted); margin: 0; }
+
+.title-block {
+  border-bottom: 2px solid var(--ink);
+  padding-bottom: 22px;
+  margin-bottom: 26px;
+}
+
+/* Body */
+h2 {
+  font-size: 13pt;
+  font-weight: 700;
+  letter-spacing: -0.005em;
+  margin: 2.1em 0 0.7em;
+}
+
+.sec-num { color: var(--accent); font-weight: 700; margin-right: 0.55em; }
+
+p { margin: 0 0 0.8em; max-width: var(--measure); }
+
+ul { margin: 0 0 1em; padding-left: 1.3em; }
+li { margin-bottom: 0.4em; }
+li::marker { color: var(--accent); }
+
+/* Figures ride through untouched; only spacing + caption are styled.
+   Spacing is split margin + padding (same 1.8em rhythm mid-page) because
+   top margins can collapse when a figure lands first on a printed page,
+   while padding always survives the page break. */
+figure { margin: 1.2em 0; padding: 0.6em 0; }
+figure img { display: block; width: 100%; height: auto; }
+figcaption {
+  font-size: 9pt;
+  line-height: 1.55;
+  color: var(--ink-soft);
+  margin-top: 0.7em;
+  max-width: var(--measure);
+  font-variant-numeric: tabular-nums;
+}
+.fig-label { color: var(--accent); font-weight: 700; margin-right: 0.5em; }
+
+/* Code: original line breaks and indentation intact, quiet frame. */
+.codeblock {
+  font-family: "Geist Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-size: 8.5pt;
+  line-height: 1.45;
+  word-spacing: normal;
+  color: var(--ink);
+  background: #f7f7f7;
+  border: 1px solid var(--hairline);
+  border-radius: 6px;
+  padding: 12px 14px;
+  margin: 1.4em 0;
+  overflow-x: auto;
+  white-space: pre;
+  max-width: var(--measure);
+}
+
+/* Tables: quiet grid, one accent rule under the header. */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 9.5pt;
+  font-variant-numeric: tabular-nums;
+}
+th {
+  text-align: left;
+  font-weight: 700;
+  padding: 0.4em 0.9em 0.4em 0;
+  border-bottom: 1.5px solid var(--accent);
+}
+td {
+  padding: 0.45em 0.9em 0.45em 0;
+  border-bottom: 1px solid var(--hairline);
+  color: var(--ink-soft);
+}
+
+/* Footer: repeats on every printed page, closes the sheet on screen. */
+.doc-footer {
+  border-top: 1px solid var(--hairline);
+  margin-top: 2.6em;
+  padding-top: 8px;
+  font-size: 8.5pt;
+  color: var(--muted);
+  background: #fff;
+  display: flex;
+  justify-content: space-between;
+  gap: 2em;
+}
+
+/* Screen-only print helper. */
+.toolbar { position: fixed; top: 16px; right: 16px; }
+.toolbar button {
+  font: inherit;
+  font-size: 9pt;
+  font-weight: 500;
+  background: #fff;
+  border: 1px solid #d4d4d4;
+  border-radius: 6px;
+  padding: 7px 12px;
+  cursor: pointer;
+}
+.toolbar button:hover { border-color: var(--accent); color: var(--accent); }
+
+/* Print = the PDF export path. Browsers repeat fixed elements per page
+   but cannot number pages; the @page margin box below is ignored by
+   browsers and honored by the WeasyPrint export engine (page numbers). */
+@page {
+  size: A4;
+  margin: 30mm 18mm 26mm;
+  @bottom-right {
+    content: "Page " counter(page) " of " counter(pages);
+    font-family: "Helvetica Neue", Helvetica, Inter, Arial, sans-serif;
+    font-size: 8.5pt;
+    color: #616161;
+  }
+}
+
+@media print {
+  body { background: #fff; }
+  .paper { margin: 0; max-width: none; padding: 21mm 0 19mm; box-shadow: none; }
+  .toolbar { display: none; }
+  .running-head { position: fixed; top: 0; left: 0; right: 0; margin-bottom: 0; }
+  .doc-footer { position: fixed; bottom: 0; left: 0; right: 0; margin-top: 0; }
+  figure { break-inside: avoid; }
+  h2 { break-after: avoid; }
+}

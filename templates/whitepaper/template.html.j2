@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{ doc.title }}</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="theme.css">
+</head>
+<body>
+<div class="toolbar"><button type="button" onclick="window.print()">Print / Save as PDF</button></div>
+<main class="paper">
+  <header class="running-head">
+    <span class="rh-title">{{ doc.short_title }}</span>
+    <span class="rh-meta">{{ doc.kicker }}{% if doc.date %} · {{ doc.date }}{% endif %}</span>
+  </header>
+
+  <header class="title-block">
+    <p class="kicker">{{ doc.kicker }}</p>
+    <h1>{{ doc.title }}</h1>
+    {% if doc.subtitle %}<p class="dek">{{ doc.subtitle }}</p>{% endif %}
+    <p class="meta">{{ doc.authors }}{% if doc.authors and doc.date %} &nbsp;·&nbsp; {% endif %}{{ doc.date }}</p>
+  </header>
+
+  {% for block in doc.blocks %}
+    {% if block.type == 'heading' %}
+      <h2>{% if block.number %}<span class="sec-num">{{ block.number }}</span>{% endif %}{{ block.text }}</h2>
+    {% elif block.type == 'paragraph' %}
+      <p>{{ block.text }}</p>
+    {% elif block.type == 'list' %}
+      <ul>
+      {% for item in block['items'] %}
+        <li>{{ item }}</li>
+      {% endfor %}
+      </ul>
+    {% elif block.type == 'code' %}
+      <pre class="codeblock"><code>{{ block.text }}</code></pre>
+    {% elif block.type == 'figure' %}
+      <figure>
+        <img src="{{ block.src }}" alt="{{ block.alt }}">
+        <figcaption><span class="fig-label">Figure {{ block.number }}</span>{% if block.caption %}{{ block.caption }}{% endif %}</figcaption>
+      </figure>
+    {% elif block.type == 'table' %}
+      <figure>
+        <table>
+          <thead><tr>{% for h in block.headers %}<th>{{ h }}</th>{% endfor %}</tr></thead>
+          <tbody>
+          {% for row in block.rows %}
+            <tr>{% for cell in row %}<td>{{ cell }}</td>{% endfor %}</tr>
+          {% endfor %}
+          </tbody>
+        </table>
+        <figcaption><span class="fig-label">Table {{ block.number }}</span>{% if block.caption %}{{ block.caption }}{% endif %}</figcaption>
+      </figure>
+    {% endif %}
+  {% endfor %}
+
+  <footer class="doc-footer"><span>{{ doc.footer_left }}</span><span>{{ doc.footer_right }}</span></footer>
+</main>
+</body>
+</html>

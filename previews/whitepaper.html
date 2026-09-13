@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cutting last-mile delivery emissions</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="theme.css">
+</head>
+<body>
+<div class="toolbar"><button type="button" onclick="window.print()">Print / Save as PDF</button></div>
+<main class="paper">
+  <header class="running-head">
+    <span class="rh-title">Cutting last-mile delivery emissions</span>
+    <span class="rh-meta">White paper · September 2026</span>
+  </header>
+
+  <header class="title-block">
+    <p class="kicker">White paper</p>
+    <h1>Cutting last-mile delivery emissions</h1>
+    <p class="dek">What two years of pilots taught us about e-cargo bikes, micro-hubs, and the diesel baseline.</p>
+    <p class="meta">Northwind Logistics Research &nbsp;·&nbsp; September 2026</p>
+  </header>
+
+  
+    
+      <h2>Executive summary</h2>
+    
+  
+    
+      <p>Last-mile delivery now accounts for the fastest-growing share of urban transport emissions. Between 2024 and 2025 we ran twelve pilots across nine cities to find out which interventions actually move the number — and which only look good in a slide deck.</p>
+    
+  
+    
+      <p>The short version: e-cargo bikes paired with micro-hubs cut per-parcel emissions by 34% against the diesel baseline, at a cost increase of four cents per parcel. Everything else helped, but nothing else came close.</p>
+    
+  
+    
+      <h2><span class="sec-num">1</span>Where the emissions come from</h2>
+    
+  
+    
+      <p>A diesel van delivering 120 parcels a day emits roughly 96 grams of CO2 per parcel by 2025, up from 78 grams in 2021. Demand grew faster than routing software could compensate: more stops, tighter time windows, and more failed first attempts.</p>
+    
+  
+    
+      <figure>
+        <img src="figures/fig1.svg" alt="Line chart of emissions per parcel rising for diesel and falling with e-cargo bikes">
+        <figcaption><span class="fig-label">Figure 1</span>Average grams of CO2 per parcel. The diesel baseline kept rising with demand; routes converted to e-cargo bikes plus micro-hubs bent the curve within two quarters.</figcaption>
+      </figure>
+    
+  
+    
+      <h2><span class="sec-num">2</span>What actually moved the needle</h2>
+    
+  
+    
+      <p>Four interventions survived contact with operations. Parcel lockers and night windows are cheap and nearly free to run, but their ceiling is low. Full EV van fleets help more, at a real cost. E-cargo bikes combined with micro-hubs were the outlier in every city we tried them.</p>
+    
+  
+    
+      <figure>
+        <table>
+          <thead><tr><th>Intervention</th><th>Pilot cities</th><th>CO2 cut</th><th>Cost / parcel</th></tr></thead>
+          <tbody>
+          
+            <tr><td>E-cargo bikes + micro-hubs</td><td>6</td><td>34%</td><td>+€0.04</td></tr>
+          
+            <tr><td>EV van fleet</td><td>9</td><td>21%</td><td>+€0.11</td></tr>
+          
+            <tr><td>Night delivery windows</td><td>3</td><td>12%</td><td>−€0.02</td></tr>
+          
+            <tr><td>Parcel lockers</td><td>12</td><td>9%</td><td>−€0.06</td></tr>
+          
+          </tbody>
+        </table>
+        <figcaption><span class="fig-label">Table 1</span>Pilot results, 2024–2025, against the diesel-van baseline.</figcaption>
+      </figure>
+    
+  
+    
+      <ul>
+      
+        <li>Micro-hubs matter more than the bikes: without a hub within 2 km, bike productivity collapses.</li>
+      
+        <li>Night windows work only where noise rules allow them — two of five cities said no.</li>
+      
+        <li>EV vans underperform in winter; plan for a 15% range penalty in northern pilots.</li>
+      
+      </ul>
+    
+  
+    
+      <pre class="codeblock"><code>hubs = find_micro_hubs(city, max_distance_km=2)
+routes = assign_bikes(hubs, fleet=40)
+
+cut = simulate(routes, baseline=&#34;diesel&#34;)
+print(f&#34;CO2 cut: {cut:.0%}&#34;)  # 34%</code></pre>
+    
+  
+    
+      <figure>
+        <img src="figures/fig2.svg" alt="Bar chart comparing CO2 cuts of four interventions">
+        <figcaption><span class="fig-label">Figure 2</span>CO2 cut by intervention. Only the e-cargo and micro-hub combination clears 30%.</figcaption>
+      </figure>
+    
+  
+    
+      <h2><span class="sec-num">3</span>Recommendation</h2>
+    
+  
+    
+      <p>Fund hubs first and bikes second: one micro-hub unlocks roughly forty bike routes, while bikes without a hub save almost nothing. Keep lockers and night windows as complements, not substitutes. That sequencing is the difference between a pilot that photographs well and one that compounds.</p>
+    
+  
+
+  <footer class="doc-footer"><span>Northwind Logistics Research</span><span>Working paper · September 2026</span></footer>
+</main>
+</body>
+</html>

@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 250" font-family="Helvetica Neue, Helvetica, Inter, Arial, sans-serif">
+  <text x="196" y="18" font-size="11" fill="#616161">CO2 cut vs diesel-van baseline (%)</text>
+  <g font-size="12" fill="#333333" text-anchor="end">
+    <text x="186" y="62">Parcel lockers</text>
+    <text x="186" y="108">Night windows</text>
+    <text x="186" y="154">EV van fleet</text>
+    <text x="186" y="200">E-cargo + hubs</text>
+  </g>
+  <g>
+    <rect x="196" y="44" width="101" height="26" fill="#1a1a1a"/>
+    <rect x="196" y="90" width="134" height="26" fill="#1a1a1a"/>
+    <rect x="196" y="136" width="235" height="26" fill="#1a1a1a"/>
+    <rect x="196" y="182" width="380" height="26" fill="#0284c7"/>
+  </g>
+  <g font-size="12" fill="#333333">
+    <text x="305" y="62">9</text>
+    <text x="338" y="108">12</text>
+    <text x="439" y="154">21</text>
+    <text x="584" y="200">34</text>
+  </g>
+  <text x="196" y="238" font-size="11" fill="#616161">Pilot results, 2024–2025. Recommended option highlighted.</text>
+</svg>
